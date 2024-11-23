@@ -13,8 +13,8 @@
 In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. 
 
 We present two results:  
-- **Unlearning-30**: 30% of the data is used in the train-to-unlearn step.  
-- **Unlearning-100**: 100% of the data is used in the train-to-unlearn step.  
+- **Unlearning-30**: 30% of the retain data is used in the train-to-unlearn step.  
+- **Unlearning-100**: 100% of the retain data is used in the train-to-unlearn step.  
 
 Empirical results for these are demonstrated on a ResNet18 model using the CIFAR-10 dataset. The experiments can be found in the following notebooks:  
 - `test_example_single_class_unlearning_30.ipynb`  
@@ -31,7 +31,7 @@ To run the notebooks, ensure the following are installed:
 | **CUDA**      | 12.4      |
 | **Python3**    | 3.12.2    |
 | **Anaconda**  | 24.5.0    |
-| **Pip3**       | 24.2 (via Conda) |
+| **Pip3**       | 24.2 (via Conda) |  
 
 ---
 
@@ -48,7 +48,7 @@ All required dependencies can be installed using the provided `conda_environment
    ```bash
    conda activate condapy312`
    
-After activating the environment open and run the desired notebook.  
+After activating the environment open and run the desired notebook. Trained ResNet18 network is given in [https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link].
 
 ## 🚀 Usages
 
