@@ -492,4 +492,4 @@ dependencies:
       - torchviz==0.0.2
       - wget==3.2
       - wrapt==1.16.0
-prefix: /home/rkmvu/anaconda3/envs/condapy312
+prefix: /home/anaconda3/envs/condapy312
