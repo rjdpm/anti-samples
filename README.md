@@ -3,6 +3,7 @@
 - [Requirements](#requirements)
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
+- [Proof of Concept](#proof-of-concept-toy-example)
 
 ---
 
@@ -66,7 +67,7 @@ To perform `Single Class Unlearning` task on other models and datasets:
    ./single_class_unlearning.py
 
 
-To perform `Multi-Class Unlearning` task on other models and datasets change values of the following variables:  
+To perform `Multi-Class Unlearning` task on other models and datasets:  
 
 1. Change the values of the aforementioned desired variables.  
 2. Add Execute permission:  
@@ -76,4 +77,9 @@ To perform `Multi-Class Unlearning` task on other models and datasets change val
 3. Run: 
    ```bash
    ./multi_class_unlearning.py
+
+## Proof of Concept (Toy Example)  
+
+Considered toy example for proof-of-concept experiments is given in:  
+`unlearn_comparison_toy_example.ipynb`
 
