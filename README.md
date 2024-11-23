@@ -45,8 +45,7 @@ All required dependencies can be installed using the provided `conda_environment
 2. Activate the environments:
    ```bash
    conda activate condapy312`
-
-
+   
 After activating the environment open and run the desired notebook.  
 
 ## 🚀 Usages
