@@ -4,7 +4,7 @@
 - [Overview](#-overview)
 - [Requirements](#%EF%B8%8F-requirements)
 - [Setup Instructions](#%EF%B8%8F-setup-instructions)
-- [Usage](#-usages)
+- [Usages](#-usages)
 - [Proof of Concept](#-proof-of-concept-toy-example)
 
 ---
