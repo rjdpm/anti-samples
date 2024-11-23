@@ -20,32 +20,30 @@ Empirical results for these are demonstrated on a ResNet18 model using the CIFAR
 
 ---
 
-## Requirements
-
+## 🛠️ Requirements
 To run the notebooks, ensure the following are installed:
 
 | Software      | Version   |
 |---------------|-----------|
 | **Ubuntu**    | 22.04     |
 | **CUDA**      | 12.4      |
-| **Python**    | 3.12.2    |
+| **Python3**    | 3.12.2    |
 | **Anaconda**  | 24.5.0    |
-| **Pip**       | 24.2 (via Conda) |
+| **Pip3**       | 24.2 (via Conda) |
 
 ---
 
-## Setup Instructions
+## ⚙️ Setup Instructions
 
 ### Install Dependencies
 All required dependencies can be installed using the provided `conda_environment.yml` file. Use the following commands:
 
 1. Create the Conda environment:
    ```bash
-   conda env create -f conda_environment.yml
- 
-
-To activate the environments run:  
-`conda activate condapy312`  
+   conda env create -f conda_environment.yml  
+2. Activate the environments:
+   ```bash
+   conda activate condapy312`  
 
 After activating the environment the notebook can be run.  
 
