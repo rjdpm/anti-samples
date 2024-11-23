@@ -1,7 +1,7 @@
 ## 📑 Table of Contents
 - [Overview](#a-novel-anti-sample-generation-technique-for-effective-machine-unlearning)
-- [Requirements](#🛠-requirements)
-- [Setup Instructions](#⚙️-setup-instructions)
+- [Requirements](#requirements)
+- [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
 
 ---
