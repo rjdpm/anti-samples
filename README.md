@@ -22,7 +22,7 @@ Empirical results for these are demonstrated on a ResNet18 model using the CIFAR
 
 ---
 
-## 🛠️ Requirements
+## Requirements
 To run the notebooks, ensure the following are installed:
 
 | Software      | Version   |
@@ -35,7 +35,7 @@ To run the notebooks, ensure the following are installed:
 
 ---
 
-## [⚙️]Setup Instructions
+## Setup Instructions
 
 ### Install Dependencies
 All required dependencies can be installed using the provided `conda_environment.yml` file. Use the following commands:  
@@ -50,7 +50,7 @@ All required dependencies can be installed using the provided `conda_environment
    
 After activating the environment open and run the desired notebook.  
 
-## 🚀 Usages
+## Usages
 
 To perform `Single Class Unlearning` task on other models and datasets:
 
