@@ -1,7 +1,7 @@
 ## 📑 Table of Contents
 - [Overview](#a-novel-anti-sample-generation-technique-for-effective-machine-unlearning)
 - [Requirements](#🛠-requirements)
-- [Setup Instructions](#⚙️-setup-nstructions)
+- [Setup Instructions](#⚙️-setup-instructions)
 - [Usage](#usage)
 
 ---
@@ -20,7 +20,7 @@ Empirical results for these are demonstrated on a ResNet18 model using the CIFAR
 
 ---
 
-## 🛠 Requirements
+## Requirements
 
 To run the notebooks, ensure the following are installed:
 
@@ -34,7 +34,7 @@ To run the notebooks, ensure the following are installed:
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### Install Dependencies
 All required dependencies can be installed using the provided `conda_environment.yml` file. Use the following commands:
