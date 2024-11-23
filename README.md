@@ -50,11 +50,14 @@ After activating the environment open and run the desired notebook.
 
 ## 🚀 Usages
 
-To run the unleanring task on other models and datasets change values of the following variables:  
+To perform _Single Class Unlearning_ task on other models and datasets change values of the following variables:  
 
 `dataset_name = 'cifar10' [#'cifar10', 'svhn', 'mnist' , 'fashionMNIST'#]`  
-`model_name = 'MobileNet_v2' [#'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'#]`
+`model_name = 'MobileNet_v2' [#'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'#]`  
 `retain_data_percent = 30 [#100#]`  
 
+To perform _Multi-Class Unlearning_ task on other models and datasets change values of the following variables:  
 
+1. Change the values of the aforementioned desired variables.
+2. Change 
 
