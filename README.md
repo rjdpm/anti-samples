@@ -1,4 +1,4 @@
-# unlearning_using_anti_samples
+# anti_samples
 Code is reproducible only for the following versions:
 CUDA: 12.4
 Python3: 3.12.2
