@@ -34,8 +34,8 @@ To run the notebooks, ensure the following are installed:
 | **Pip3**       | 24.2 (via Conda) |
 
 **Conda Libraries:**  
-| Library      | Version   |
-|--------------|-----------|
+| Library      | (>=) Version|
+|--------------|-------------|
 | **Numpy**    | 1.26.4    |
 | **Torch**    | 2.4.1     |
 | **Torch-cuda** | 12.4    |
