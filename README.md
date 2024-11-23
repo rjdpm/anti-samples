@@ -3,4 +3,8 @@ In this paper, we propose a novel algorithm that effectively neutralizes the inf
 
 ## Requirments
 To run the notebook followings are needed:  
-UBUNTU: 22.04 <br> CUDA: 12.4 <br> Python3: 3.12.2 <br> Anaconda: 24.5.0 <br> Pip3: 24.2 (Conda) <br> .
+UBUNTU: 22.04 <br> CUDA: 12.4 <br> Python3: 3.12.2 <br> Anaconda: 24.5.0 <br> Pip3: 24.2 (Conda) <br>  
+
+All dependencies can be installed using `conda_environment.yml` file. To create the environment run the following command:  
+`conda env create -f conda_environment.yml`  
+
