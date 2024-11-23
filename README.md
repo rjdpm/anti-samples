@@ -61,15 +61,14 @@ Run:
 chmod +x single_class_unlearning.py
 
 ```bash
-./single_class_unlearning.py
+./single_class_unlearning.py  
 
 To perform `Multi-Class Unlearning` task on other models and datasets change values of the following variables:  
 
-1. Change the values of the aforementioned desired variables.
-2. Run:
-Run:
+1. Change the values of the aforementioned desired variables.  
+2. Run:  
 ```bash
-chmod +x multi_class_unlearning.py
+chmod +x multi_class_unlearning.py  
 
 ```bash
 ./multi_class_unlearning.py
