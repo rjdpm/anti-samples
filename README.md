@@ -9,7 +9,7 @@
 
 ---
 
-## Overview
+## 📖 Overview
 In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. 
 
 We present two results:  
