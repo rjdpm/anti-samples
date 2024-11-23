@@ -8,3 +8,10 @@ UBUNTU: 22.04 <br> CUDA: 12.4 <br> Python3: 3.12.2 <br> Anaconda: 24.5.0 <br> Pi
 All dependencies can be installed using `conda_environment.yml` file. To create the environment run the following command:  
 `conda env create -f conda_environment.yml`  
 
+## Table of Contents
+- [About](#about)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+
