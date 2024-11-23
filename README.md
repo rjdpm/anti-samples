@@ -22,7 +22,7 @@ Empirical results for these are demonstrated on a ResNet18 model using the CIFAR
 
 ---
 
-## Requirements
+## 🛠️ Requirements
 To run the notebooks, ensure the following are installed:
 
 | Software      | Version   |
