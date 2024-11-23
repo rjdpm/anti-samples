@@ -1,7 +1,7 @@
 # A Novel Anti-Sample Generation Technique for Effective Machine Unlearning
 
 ## 📑 Table of Contents
-- [Overview](#overview)
+- [Overview](#-overview)
 - [Requirements](#%EF%B8%8F-requirements)
 - [Setup Instructions](#%EF%B8%8F-setup-instructions)
 - [Usage](#-usages)
