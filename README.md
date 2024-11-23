@@ -57,13 +57,19 @@ To perform `Single Class Unlearning` task on other models and datasets:
 1. Change values of the following variables:  
 `dataset_name = 'cifar10' [#'cifar10', 'svhn', 'mnist' , 'fashionMNIST'#]`  
 `model_name = 'MobileNet_v2' [#'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'#]`  
-`retain_data_percent = 30 [#100#]`  
+`retain_data_percent = 30 [#100#]`
 
-2. Add Execute permission:  
+   ```python
+   dataset_name = 'cifar10'  # Options: 'cifar10', 'svhn', 'mnist', 'fashionMNIST'
+   model_name = 'MobileNet_v2'  # Options: 'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'
+   retain_data_percent = 30  # Options: 30, 100
+
+
+3. Add Execute permission:  
    ```bash
    chmod +x single_class_unlearning.py
 
-3. Run: 
+4. Run: 
    ```bash
    ./single_class_unlearning.py
 
