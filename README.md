@@ -2,7 +2,7 @@
 
 ## 📑 Table of Contents
 - [Overview](#overview)
-- [Requirements](##%EF%B8%8F-requirements)
+- [Requirements](#%EF%B8%8F-requirements)
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
 - [Proof of Concept](#proof-of-concept-toy-example)
