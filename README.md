@@ -20,7 +20,7 @@ Empirical results for these are demonstrated on a ResNet18 model using the CIFAR
 
 ---
 
-## 🛠️Requirements
+## 🛠️ Requirements
 To run the notebooks, ensure the following are installed:
 
 | Software      | Version   |
@@ -33,21 +33,26 @@ To run the notebooks, ensure the following are installed:
 
 ---
 
-## ⚙️Setup Instructions
+## ⚙️ Setup Instructions
 
 ### Install Dependencies
-All required dependencies can be installed using the provided `conda_environment.yml` file. Use the following commands:
+All required dependencies can be installed using the provided `conda_environment.yml` file. Use the following commands:  
 
 1. Create the Conda environment:
    ```bash
-   conda env create -f conda_environment.yml  
+   conda env create -f conda_environment.yml
+   
 2. Activate the environments:
    ```bash
-   conda activate condapy312`  
+   conda activate condapy312`
 
-After activating the environment the notebook can be run.  
 
-To run the unlearning task on other models and datasets
+After activating the environment open and run the desired notebook.  
+
+## 🚀 Usages
+
+To run
+
 
 
 
