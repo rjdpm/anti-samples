@@ -1,8 +1,8 @@
 ## 📑 Table of Contents
 - [Overview](#a-novel-anti-sample-generation-technique-for-effective-machine-unlearning)
-- [Requirements](#requirements)
-- [Setup Instructions](#setup-instructions)
-- [Usage](#usage)
+- [Requirements](#🛠️-requirements)
+- [Setup Instructions](#⚙️-setup-instructions)
+- [Usage](#🚀-usage)
 - [Proof of Concept](#proof-of-concept-toy-example)
 
 ---
@@ -80,6 +80,9 @@ To perform `Multi-Class Unlearning` task on other models and datasets:
 
 ## Proof of Concept (Toy Example)  
 
-Considered toy example for proof-of-concept experiments is given in:  
-`unlearn_comparison_toy_example.ipynb`
+A toy example for proof-of-concept experiments is provided in the following notebook:
+`unlearn_comparison_toy_example.ipynb`  
+This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
+
+
 
