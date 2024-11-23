@@ -1,5 +1,5 @@
 ## Table of Contents
-- [A Novel Anti-Sample Generation Technique for Effective Machine Unlearning](#about)
+- [A Novel Anti-Sample Generation Technique for Effective Machine Unlearning](#A Novel Anti-Sample Generation Technique for Effective Machine Unlearning)
 - [Requirments](#Requirments)
 - [Required Commands](#Required)
 
