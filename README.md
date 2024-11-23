@@ -1,10 +1,8 @@
->markdown: Create Table of Contents
-
 ## 📑 Table of Contents
 - [Overview](#a-novel-anti-sample-generation-technique-for-effective-machine-unlearning)
-- [Requirements](#-requirements)
-- [Setup Instructions](#-setup-instructions)
-- [Usage](#-usage)
+- [Requirements](#requirements)
+- [Setup Instructions](#setup-instructions)
+- [Usage](#usage)
 - [Proof of Concept](#proof-of-concept-toy-example)
 
 ---
