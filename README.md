@@ -35,7 +35,7 @@ To run the notebooks, ensure the following are installed:
 
 ---
 
-## Setup Instructions
+## ⚙️ Setup Instructions
 
 ### Install Dependencies
 All required dependencies can be installed using the provided `conda_environment.yml` file. Use the following commands:  
@@ -50,7 +50,7 @@ All required dependencies can be installed using the provided `conda_environment
    
 After activating the environment open and run the desired notebook.  
 
-## Usages
+## 🚀 Usages
 
 To perform `Single Class Unlearning` task on other models and datasets:
 
@@ -81,7 +81,7 @@ To perform `Multi-Class Unlearning` task on other models and datasets:
    ```bash
    ./multi_class_unlearning.py
 
-## Proof of Concept (Toy Example)  
+## 💭 Proof of Concept (Toy Example)  
 
 A toy example for proof-of-concept experiments is provided in the following notebook:
 `unlearn_comparison_toy_example.ipynb`  
