@@ -1,5 +1,7 @@
+# A Novel Anti-Sample Generation Technique for Effective Machine Unlearning
+
 ## 📑 Table of Contents
-- [Overview](#a-novel-anti-sample-generation-technique-for-effective-machine-unlearning)
+- [Overview](#overview)
 - [Requirements](#requirements)
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
@@ -7,8 +9,7 @@
 
 ---
 
-# A Novel Anti-Sample Generation Technique for Effective Machine Unlearning
-
+## Overview
 In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. 
 
 We present two results:  
