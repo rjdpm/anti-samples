@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+
+##############################################################################################
+#% WRITER: RAJDEEP MONDAL            DATE: 20-11-2024
+#% For bug and others mail me at: rdmondalofficial@gmail.com
+#%--------------------------------------------------------------------------------------------
+##############################################################################################
+
+
 import os
 import pickle
 import numpy as np
@@ -6,27 +14,26 @@ import copy
 from collections import OrderedDict
 import pandas as pd
 from tqdm import tqdm
+import shutil
 
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision import transforms
 
 from utils_unlearn import *
 from UNMUNGE import *
 from load_datasets import *
-from config_multiclass_unlearning_30 import *
+from config import *
 from dataloader import *
 
 
 
-#################################################### Inputs ######################################################################
+##################################################### Inputs ######################################################################
 #--------------------------------------------------------------------------------------------------------------------------------
 dataset_name = 'fashionMNIST'#'cifar10', 'svhn', 'mnist' , 'fashionMNIST', 'cifar100'#
 model_name = 'AllCNN'#'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'#
 # Number of datapoints selected from each retain class for unlearning
 retain_data_percent = 30
-# no_retain_data = 2000#config['no_retain_data']#5000#500
 unlearn_type = 'Multiclass_Unlearning'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 delete_saved_unlearned_models = True
@@ -39,26 +46,19 @@ all_result_folder_path = './results'
 result_savepath = ''.join([all_result_folder_path,'/', dataset_name, '/', model_name, '/'])
 unlearned_models_path = ''.join([result_savepath, '/', unlearn_type, '/', unlearned_models_folder_name])
 
-  
-
-# ## Delete Pre-Saved Unlearned Models
-# if delete_saved_unlearned_models:
-#     print('='*80)
-#     if not os.path.isdir(unlearned_models_path):
-#         print('Unlearned Models not exists.')
-#     else:
-#         print(f'\nDeleting Pre-Saved Unlearned Models from:{unlearned_models_path}')
-#         shutil.rmtree(unlearned_models_path)
-#         print('Unlearned Models folder deleted.')
-#     print('-'*80)
-#     print('='*80)
+## Delete Pre-Saved Unlearned Models
+if delete_saved_unlearned_models:
+    print('='*80)
+    if not os.path.isdir(unlearned_models_path):
+        print('Unlearned Models not exists.')
+    else:
+        print(f'\nDeleting Pre-Saved Unlearned Models from:{unlearned_models_path}')
+        shutil.rmtree(unlearned_models_path)
+        print('Unlearned Models folder deleted.')
+    print('-'*80)
+    print('='*80)
 #================================================================================================================================
 #--------------------------------------------------------------------------------------------------------------------------------
-
-# Applying transformation for particular data and model 
-cifar100_transform = transforms.Compose([transforms.Resize(224, antialias = True)]) 
-resize_model_names = ['ResNet18', 'MobileNet_v2'] # List of models from which the input data will be transformed
-resize_dataset_names = ['cifar100'] # List of models from which the input data will be transformed
 
 if dataset_name == 'mnist' or dataset_name == 'fashionMNIST':
     num_input_channels = 1
@@ -75,24 +75,21 @@ else:
 #------------------------------------------------------------------------------------------------------------------------------
 
 ##################################################### Parameters ##################################################################
-# unlearn_classes = [2, 3, 4]#config['unlearn_cls']#0
-learning_rate = config['learning_rate']#1e-3
-unlearn_scale_lr = config['unlearn_scale_lr']#2
-batch_size = config['batch_size']#128
-num_train_epochs = config['num_train_epochs']#50       
-num_unlearn_epochs = config['num_unlearn_epochs']#10
-# no_retain_data = config['no_retain_data']#5000#500
-local_variance = config['local_variance']#10
-size_multiplier = config['size_multiplier']#1
-p = config['p']#0.75
-tail_randomized=config['tail_randomized']#50
+learning_rate = config['learning_rate']
+unlearn_scale_lr = config['unlearn_scale_lr']
+batch_size = config['batch_size']
+num_train_epochs = config['num_train_epochs']
+num_unlearn_epochs = config['num_unlearn_epochs']
+local_variance = config['local_variance']
+size_multiplier = config['size_multiplier']
+p = config['p']
+tail_randomized=config['tail_randomized']
 solver_type = config['solver_type']
 no_generated_data = config['no_generated_data']
 unlearn_cls = 'multiclass_unlearn'
 convex_combination = True
 eps = 0.01
-# num_multiclass = 3
-# averaging_epochs = 5
+
 unlearn_cls = 'multiclass_unlearn'
 all_multiclass_list = [2, 4, 7]
 all_averaging_epochs_list = [10, 5, 3]
@@ -110,7 +107,6 @@ if not os.path.isfile(random_classes_filename):
     print('No predefined unlearn classes.')
     for j in range(len(all_averaging_epochs_list)):
         all_unlearn_classes[j] = [list(np.random.choice(range(num_classes), all_multiclass_list[j], replace=False)) for i in range(all_averaging_epochs_list[j])]
-        # unlearn_classes = list(np.random.choice(range(num_classes), num_multiclass, replace=False))#list(range(num_classes))[:num_multiclass]#
     with open(random_classes_filename, 'wb') as fp:
         pickle.dump(all_unlearn_classes, fp)
         
@@ -123,18 +119,6 @@ print('='*80)
 all_unlearn_classes_dict = dict(zip(all_multiclass_list, all_unlearn_classes))
 all_unlearn_classes = [all_unlearn_classes_dict[key] for key in num_multiclass_list]
 print(f'List of classes to unlearn:\n {all_unlearn_classes}')
-
-
-## Fixing seed for Reproduciblity
-#np_seed = config['np_seed']
-#torch_seed = config['torch_seed']
-#np.random.seed(np_seed)#60#20#30
-#torch.manual_seed(torch_seed)
-#if torch.cuda.is_available():
-#    torch.cuda.empty_cache()
-#    torch.cuda.manual_seed_all(torch_seed)
-#    torch.backends.cudnn.deterministic = True
-#    torch.backends.cudnn.benchmark = False 
 #--------------------------------------------------------------------------------------------------------------------------------
 #================================================================================================================================
 
@@ -201,32 +185,23 @@ for multiclass_idx in range(len(num_multiclass_list)):
     if dataset_name == 'cifar100':
         datapath = ''.join([datapath, 'CIFAR100/'])
 
-    train_data, test_data = dict_datasets[dataset_name](datapath)# Try to write as a if else with manual function
-    train_loader = DataLoader(ImageDataset(train_data, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else train_data,
+    train_data, test_data = dict_datasets[dataset_name](datapath)
+    train_loader = DataLoader(train_data,
                             batch_size,
                             shuffle=True
                             )
-    test_loader = DataLoader(ImageDataset(test_data, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else test_data,
+    test_loader = DataLoader(test_data,
                             batch_size,
                             shuffle=True
                             )
     image_size = train_loader.dataset[0][0].shape
 
-    # obj_model.unlearn_cls = unlearn_cls
     print('='*80)
     print('Data stats:')
     print('-'*80)
     print('Train data size (num_samples x 1-sample size): {} x {}' .format(len(train_data), train_data[0][0].shape))
     print('Test data size (num_samples x 1-sample size): {}  x {}' .format(len(test_data), test_data[0][0].shape))
     print('-'*80)
-    # print('One train random sample')
-    # train_rand_idx = np.random.choice(len(obj_model.train_data))
-
-    # plot_sample_with_label(obj_model.train_data[train_rand_idx][0].permute(1, 2, 0), obj_model.train_data[train_rand_idx][1])
-    # print('-'*80)
-    # print('One test random sample')
-    # test_rand_idx = np.random.choice(len(obj_model.test_data))
-    # plot_sample_with_label(obj_model.test_data[test_rand_idx][0].permute(1, 2, 0), obj_model.test_data[test_rand_idx][1])
     print('='*80)
     #-------------------------------------------------------------------------------------------------------------------------------
 
@@ -235,11 +210,11 @@ for multiclass_idx in range(len(num_multiclass_list)):
 
     print('Separating Data and Labels from Dataloader:')
     print('-------------------------------------------')
-    input_train_data = []#[None]*len(train_loader)
-    input_train_labels = []#[None]*len(train_loader)
+    input_train_data = []
+    input_train_labels = []
 
-    input_test_data = []#[None]*len(test_loader)
-    input_test_labels = []#[None]*len(test_loader)
+    input_test_data = []
+    input_test_labels = []
 
     for data, label in train_data:
         input_train_data.append(data)
@@ -268,9 +243,9 @@ for multiclass_idx in range(len(num_multiclass_list)):
         unlearn_classes_name = 'multiclass_' + str(unlearn_classes).replace('[', '',).replace(']', '').replace(', ', '_')
         
         ## Fixing seed for Reproduciblity
-        np_seed = config['np_seed']
-        torch_seed = config['torch_seed']
-        np.random.seed(np_seed)#60#20#30
+        np_seed = 20
+        torch_seed = 100
+        np.random.seed(np_seed)
         torch.manual_seed(torch_seed)
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
@@ -305,8 +280,8 @@ for multiclass_idx in range(len(num_multiclass_list)):
         #Initializing Retraining Model
         unlearn_model = copy.deepcopy(obj_model)
 
-        obj_model.train_data  = ImageDataset(train_data, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else train_data
-        obj_model.test_data = ImageDataset(test_data, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else test_data# Try to write as a if else with manual function
+        obj_model.train_data  = train_data
+        obj_model.test_data = test_data
         #--------------------------------------------------------------------------------------------------------------------------
 
 
@@ -375,21 +350,14 @@ for multiclass_idx in range(len(num_multiclass_list)):
             retain_test_data = retain_test_data[~idx_test]
             retain_test_labels = retain_test_labels[~idx_test]
             
-        # unlearn_data = np.concatenate(unlearn_data)
-        # print((unlearn_data[1].shape))
-        # unlearn_data_shape = unlearn_data.shape
-        # retain_train_data = retain_data
-        # retain_train_labels = retain_labels
-
-        # plot_sample_with_label(retain_data[1010].permute(1, 2, 0), retain_labels[1010])
 
         #Dataloader only for retain data
         temp = list(zip(retain_train_data,retain_train_labels))
-        obj_model.retain_loader_train = DataLoader(ImageDataset(temp, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else  temp,
+        obj_model.retain_loader_train = DataLoader(temp,
                                             batch_size=batch_size,
                                             shuffle=True)
         temp = list(zip(retain_test_data, retain_test_labels))
-        obj_model.retain_loader_test = DataLoader(ImageDataset(temp, transform = cifar100_transform)if (model_name in resize_model_names and dataset_name in resize_dataset_names) else temp,
+        obj_model.retain_loader_test = DataLoader(temp,
                                             batch_size = batch_size,
                                             shuffle = True
                                             )
@@ -408,13 +376,11 @@ for multiclass_idx in range(len(num_multiclass_list)):
 
 
         #Chossing random subsets of fixed size from each retain classes
-        # print(f'Selecting {no_retain_data}- random samples from each classes:')
         print(f'Selecting {retain_data_percent}-percent random samples from each classes:')
         retain_data = []
         unlearn_retain_labels = []
         train_index = []
         labels = list(set(retain_train_labels.numpy()))
-        # print(labels)
         for label in labels:
             idx = (input_train_labels == label)
             temp = np.where(idx == True)[0]
@@ -425,9 +391,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
             cls_labels = input_train_labels[data_idx]
             retain_data.extend(cls_data)
             unlearn_retain_labels.extend(cls_labels)     
-        # print(retain_data)
         unlearn_retain_data = torch.stack(retain_data) # Contains 'no_retain_data' number of data from each class
-        # print(unlearn_retain_data.shape)
         unlearn_retain_labels = torch.from_numpy(np.array(unlearn_retain_labels))
         print(f'Number of selected Retained Data = {len(unlearn_retain_data)}\n')
         print(f'Retained labels are: {labels}')
@@ -505,7 +469,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
             
             # Creating Dataloader only for Unlearned Data
             temp = list(zip(unlearn_data,unlearn_labels))
-            obj_model.unlearn_dataloader = DataLoader(ImageDataset(temp, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else  temp,
+            obj_model.unlearn_dataloader = DataLoader(temp,
                                                     batch_size=batch_size,
                                                     shuffle=True
                                                     )
@@ -526,7 +490,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
             train_unlearn_images = torch.concat((retain_data, unmunge_data))
             train_unlearn_labels = torch.concat((retain_labels, unmunge_labels))
             temp = list(zip(train_unlearn_images,train_unlearn_labels))
-            obj_model.unlearn_loader_all = DataLoader(ImageDataset(temp, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else  temp,
+            obj_model.unlearn_loader_all = DataLoader(temp,
                                                     batch_size=batch_size,
                                                     shuffle=True)
             #------------------------------------------------------------------------------------------------------------------------------
@@ -591,9 +555,9 @@ for multiclass_idx in range(len(num_multiclass_list)):
         print(f'\n\n############################# Retraining the Model for Unlearn Classes - {unlearn_classes} #########################################################\n')
         print('===========================================================================================================================================================')
         temp =list(zip(retain_train_data,retain_train_labels))
-        retrain_model.train_data = ImageDataset(temp, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else  temp
+        retrain_model.train_data = temp
         temp = list(zip(retain_test_data,retain_test_labels))
-        retrain_model.test_data = ImageDataset(temp, transform = cifar100_transform) if (model_name in resize_model_names and dataset_name in resize_dataset_names) else  temp
+        retrain_model.test_data = temp
         
         retrain_model.best_model_save_path = obj_model.best_retrain_model_save_path
         retrain_model.result_savepath = obj_model.result_savepath_retrained
@@ -643,7 +607,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
         
         all_accuracy_savepath = ''.join([obj_model.result_savepath, unlearn_type, '_results_fixed_seed_inner_loop/'])
         obj_model.create_folder(all_accuracy_savepath)
-        classwise_accuracy_savepath = ''.join([all_accuracy_savepath,#obj_model.result_savepath,
+        classwise_accuracy_savepath = ''.join([all_accuracy_savepath,
                                     obj_model.model_name, '_',
                                     obj_model.data_name, '_',
                                     'classwise_accuracy_all_multiclass',
@@ -659,9 +623,8 @@ for multiclass_idx in range(len(num_multiclass_list)):
                                     '_prcnt_', str(retain_data_percent),
                                     '.csv'])
         df_acc = pd.DataFrame.from_dict(all_classwise_acc)
-        # df_acc.to_csv(path_or_buf = classwise_accuracy_savepath, index=False)
     ########################################## Saving the accurcies ##########################################################
-        unlearn_retain_accuracy_savepath = ''.join([all_accuracy_savepath,#obj_model.result_savepath,
+        unlearn_retain_accuracy_savepath = ''.join([all_accuracy_savepath,
                                     obj_model.model_name, '_',
                                     obj_model.data_name, '_',
                                     'unlearn_retain_accuracy_all_multiclass',
@@ -698,7 +661,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
     avg_test_retain_acc = round_up(sum(all_test_retain_acc)/averaging_epochs, 2)
     avg_test_unlearn_acc = round_up(sum(all_test_unlearn_acc)/averaging_epochs, 2)
 
-    accuracy_savepath = ''.join([all_accuracy_savepath,#obj_model.result_savepath,
+    accuracy_savepath = ''.join([all_accuracy_savepath,
                                     obj_model.model_name, '_',
                                     obj_model.data_name, '_',
                                     'avg_train_test_accuracies_multiclass_unlearn'
