@@ -62,7 +62,7 @@ All required dependencies can be installed using the provided `conda_environment
    
 After activating the environment, open and run the desired notebook.  
 
-Trained ResNet18 network is given in [https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link]
+Trained ResNet18 network is given in [here](#https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link).
 
 ## 🚀 Usages
 
