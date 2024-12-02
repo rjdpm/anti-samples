@@ -416,12 +416,10 @@ class utils_:
             print('Avg. test loss on unlearn data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_unlearn_loss), float(epoch_test_unlearn_acc)))
             
             # test on test data
-            print('Test on test data epoch {}/({})\n' .format(epoch+1, num_epochs))
             self.test_test_loader = self.data_subset(self.test_loader, 0.1)
             epoch_test_test_loss, test_unlearn_confusion_matrix, epoch_test_test_acc, self.test_unlearn_classwise_accuracy, _, _ = self.test(model, self.test_test_loader)
             self.unlearn_test_loss[epoch] = epoch_test_test_loss
             self.unlearn_test_acc[epoch] = epoch_test_test_acc
-            print('Avg. test loss on test data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_test_loss), float(epoch_test_test_acc)))
             
             # save the best trained network
             # if((epoch==0) or (self.test_unlearn_loss_best_network<epoch_test_test_loss)):             
@@ -1013,7 +1011,3 @@ def fix_seed(np_seed, torch_seed):
         torch.cuda.manual_seed_all(torch_seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    
-    
-
-    
