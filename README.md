@@ -40,7 +40,7 @@ To run the notebooks, ensure the following are installed:
 ## ⚙️ Setup Instructions
 
 ### Install Dependencies
-All required dependencies can be installed using the provided `conda_environment.yml` file and following commands:  
+All required dependencies can be installed using the provided [conda_environment.yml](https://github.com/rjdpm/anti-samples/blob/main/conda_environment.yml) file and following commands:  
 
 1. Create the Conda environment:
    ```bash
