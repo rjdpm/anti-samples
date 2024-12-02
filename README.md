@@ -12,7 +12,7 @@
 ---
 
 ## 📖 Overview
-In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. 
+In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. Code to generate anti-samples given in [UNMUNGE.py](https://github.com/rjdpm/anti-samples/blob/main/UNMUNGE.py).
 
 We present two results:  
 - **Unlearning-30**: 30% of the retain data is used in the train-to-unlearn step.  
@@ -54,9 +54,9 @@ After activating the environment, open and run the desired notebook. Get pre-tra
 
 ## 🚀 Usages
 
-To perform `Single Class Unlearning` task on other models and datasets:
+#### To perform `Single Class Unlearning` task on other models and datasets:
 
-1. Change values of the following variables:  
+1. Change values of the following variables in [single_class_unlearning.py](https://github.com/rjdpm/anti-samples/blob/main/single_class_unlearning.py):  
    ```python
    dataset_name = 'cifar10'  # Options: 'cifar10', 'svhn', 'mnist', 'fashionMNIST'
    model_name = 'MobileNet_v2'  # Options: 'ResNet9', 'AllCNN', 'ResNet18', 'MobileNet_v2'
@@ -72,9 +72,9 @@ To perform `Single Class Unlearning` task on other models and datasets:
    ./single_class_unlearning.py
 
 
-To perform `Multi-Class Unlearning` task on other models and datasets:  
+#### To perform `Multi-Class Unlearning` task on other models and datasets:  
 
-1. Change the values of the aforementioned desired variables.  
+1. Change the values of the aforementioned desired variables in [multi_class_unlearning.py](https://github.com/rjdpm/anti-samples/blob/main/multi_class_unlearning.py).  
 2. Add Execute permission:  
    ```bash
    chmod +x multi_class_unlearning.py
@@ -83,11 +83,11 @@ To perform `Multi-Class Unlearning` task on other models and datasets:
    ```bash
    ./multi_class_unlearning.py
 
+Change different parameter values in [config.py](https://github.com/rjdpm/anti-samples/blob/main/config.py) for parameter and hyperparameter tuning.
+
 ## 💭 Proof of Concept (Toy Example)  
 
-A toy example for proof-of-concept experiments is provided in the following notebook:
-`unlearn_comparison_toy_example.ipynb`  
-This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
+A toy example for proof-of-concept experiment is provided in [unlearn_comparison_toy_example.ipynb](https://github.com/rjdpm/anti-samples/blob/main/unlearn_comparison_toy_example.ipynb). This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
 
 ## 📜 License  
 This project is licensed under the Creative Commons Zero v1.0 Universal License. See the [LICENSE](https://github.com/rjdpm/anti-samples/blob/main/LICENSE.md) file for details.
