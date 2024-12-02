@@ -12,7 +12,7 @@
 ---
 
 ## 📖 Overview
-In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. Code to generate anti-samples given in [UNMUNGE.py](https://github.com/rjdpm/anti-samples/blob/main/UNMUNGE.py).
+In this paper, we propose a novel algorithm that effectively neutralizes the influence of a specific data subset on an existing trained model. Our algorithm generates noise that acts in opposition to the target data subset while preserving a significant amount of model performance on the remaining datapoints. Code to generate anti-samples is given in [UNMUNGE.py](https://github.com/rjdpm/anti-samples/blob/main/UNMUNGE.py).
 
 We present two results:  
 - **Unlearning-30**: 30% of the retain data is used in the train-to-unlearn step.  
@@ -50,7 +50,7 @@ All required dependencies can be installed using the provided [conda_environment
    ```bash
    conda activate conda_env
    
-After activating the environment, open and run the desired notebook. Get pre-trained ResNet18 network in [here](https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link).
+After activating the environment, open and run the desired notebook. Get pre-trained ResNet18 network from [here](https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link).
 
 ## 🚀 Usages
 
