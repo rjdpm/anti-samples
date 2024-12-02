@@ -102,7 +102,7 @@ A toy example for proof-of-concept experiments is provided in the following note
 This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
 
 ## License  
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/rjdpm/anti-samples/blob/main/LICENSE.md) file for details.
 
 ## Citation  
 To cite this paper use:
