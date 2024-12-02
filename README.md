@@ -35,18 +35,6 @@ To run the notebooks, ensure the following are installed:
 | **Anaconda**  | 24.5.0    |
 | **Pip3**       | 24.2 (via Conda) |
 
-**Conda Libraries:**  
- Numpy >= 1.26.4    
- Torch >= 2.4.1     
- Torch-cuda >= 12.4    
- Pandas >= 2.2.2    
- Matplotlib >= 3.9.2    
- Seaborn >= 0.13.2   
- Scikit-learn >= 1.5.2  
- Tqdm >= 4.66.5       
- Torchinfo >= 1.8.0    
-
-
 ---
 
 ## ⚙️ Setup Instructions
