@@ -6,6 +6,8 @@
 - [Setup Instructions](#%EF%B8%8F-setup-instructions)
 - [Usages](#-usages)
 - [Proof of Concept](#-proof-of-concept-toy-example)
+- [License](#license)
+- [Citation](#citation)
 
 ---
 
@@ -98,6 +100,9 @@ To perform `Multi-Class Unlearning` task on other models and datasets:
 A toy example for proof-of-concept experiments is provided in the following notebook:
 `unlearn_comparison_toy_example.ipynb`  
 This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
+
+## License  
+This project is licensed under the MIT License. See the LICENSE file for details.
 
 ## Citation  
 To cite this paper use:
