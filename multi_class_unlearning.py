@@ -15,6 +15,8 @@ from collections import OrderedDict
 import pandas as pd
 from tqdm import tqdm
 import shutil
+import warnings
+warnings.filterwarnings("ignore")
 
 import torch
 import torch.optim as optim
@@ -24,14 +26,13 @@ from utils_unlearn import *
 from UNMUNGE import *
 from load_datasets import *
 from config import *
-from dataloader import *
 
 
 
 ##################################################### Inputs ######################################################################
 #--------------------------------------------------------------------------------------------------------------------------------
-dataset_name = 'fashionMNIST'#'cifar10', 'svhn', 'mnist' , 'fashionMNIST', 'cifar100'#
-model_name = 'AllCNN'#'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'#
+dataset_name = 'fashionMNIST'#'cifar10', 'svhn', 'mnist' , 'fashionMNIST'#
+model_name = 'AllCNN'#'ResNet9', 'AllCNN', 'ResNet18', 'MobileNet_v2'#
 # Number of datapoints selected from each retain class for unlearning
 retain_data_percent = 30
 unlearn_type = 'Multiclass_Unlearning'
@@ -64,11 +65,9 @@ if dataset_name == 'mnist' or dataset_name == 'fashionMNIST':
     num_input_channels = 1
     num_classes = 10
     padding = 2
-elif dataset_name == 'svhn' or dataset_name == 'cifar10' or dataset_name == 'cifar100':
+elif dataset_name == 'svhn' or dataset_name == 'cifar10':
     num_input_channels = 3
     num_classes = 10
-    if dataset_name == 'cifar100':
-        num_classes = 20#100
     padding = 0
 else:
     print('Details about data not found.')
@@ -76,25 +75,24 @@ else:
 
 ##################################################### Parameters ##################################################################
 learning_rate = config['learning_rate']
-unlearn_scale_lr = config['unlearn_scale_lr']
+unlearn_scale_lr = 1#config['unlearn_scale_lr']
 batch_size = config['batch_size']
-num_train_epochs = config['num_train_epochs']
-num_unlearn_epochs = config['num_unlearn_epochs']
+num_train_epochs = 2#30
+num_unlearn_epochs = 2#5
 local_variance = config['local_variance']
 size_multiplier = config['size_multiplier']
 p = config['p']
 tail_randomized=config['tail_randomized']
 solver_type = config['solver_type']
-no_generated_data = config['no_generated_data']
-unlearn_cls = 'multiclass_unlearn'
+no_generated_data = 500 if retain_data_percent==30 else 1500
 convex_combination = True
 eps = 0.01
 
 unlearn_cls = 'multiclass_unlearn'
 all_multiclass_list = [2, 4, 7]
 all_averaging_epochs_list = [10, 5, 3]
-num_multiclass_list = [2]#all_multiclass_list#
-averaging_epochs_list = [10]#all_averaging_epochs_list#
+num_multiclass_list = [7]#all_multiclass_list#
+averaging_epochs_list = [3]#all_averaging_epochs_list#
 
 # Saving and Loading random unlearn classes 
 random_classes_path = all_result_folder_path + '/'+dataset_name+'/'+model_name+'/'
@@ -127,10 +125,6 @@ for multiclass_idx in range(len(num_multiclass_list)):
     
     num_multiclass = num_multiclass_list[multiclass_idx]
     averaging_epochs = averaging_epochs_list[multiclass_idx]
-    
-    if dataset_name == 'cifar100':
-        num_multiclass = num_multiclass*2
-        averaging_epochs = averaging_epochs*2
 
     unlearn_train_acc_unlearning = [None]*averaging_epochs
     retain_train_acc_unlearning = [None]*averaging_epochs
@@ -148,7 +142,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
     all_test_unlearn_acc = [None]*averaging_epochs
     Unlearn_Class = [None]*averaging_epochs
     
-    unlearn_time_list = [None]*num_classes
+    unlearn_time_list = [None]*averaging_epochs
     
 
     all_classwise_acc = OrderedDict({'Classes':list(range(num_classes))})
@@ -179,11 +173,9 @@ for multiclass_idx in range(len(num_multiclass_list)):
     # datapath = '/home/dell/Workspace/Codes/Datasets/Torchvision_Data/'
 
     # For GPU's
-    datapath = '/home/rajdeep/Codes/Datasets/Torchvision_Data/'
+    datapath = '/home/rkmvu/Workspace/Codes/Datasets/Torchvision_Data/'
     if dataset_name == 'svhn':
         datapath = ''.join([datapath, 'SVHN_Data/'])
-    if dataset_name == 'cifar100':
-        datapath = ''.join([datapath, 'CIFAR100/'])
 
     train_data, test_data = dict_datasets[dataset_name](datapath)
     train_loader = DataLoader(train_data,
@@ -500,7 +492,7 @@ for multiclass_idx in range(len(num_multiclass_list)):
                                                                 dataloader=obj_model.unlearn_loader_all,
                                                                 num_epochs=num_unlearn_epochs
                                                                 )
-            unlearn_time_list[unlearn_cls] = total_time
+            unlearn_time_list[epoch] = total_time
             
         else:
             print(f'Found existing unlearned model in: {obj_model.best_unlearn_model_save_path}')
@@ -523,8 +515,6 @@ for multiclass_idx in range(len(num_multiclass_list)):
                                                                                                                                         unlearn_classes=unlearn_classes
                                                                                                                                         )
         print(f'Classwise Accuracy on Train Data after Unlearning(Unlearn Classes - {unlearn_classes}):\n {unlearn_train_classwise_accuracy}\n')
-        print(f'Accuracy of Unlearned Model on Retain Data in Train Dataset(Unlearn Classes - {unlearn_classes}) = {train_retain_acc_cls}')
-        print(f'Accuracy of Unlearned Model on Unlearn Data in Train Dataset(Unlearn Classes - {unlearn_classes}) = {train_unlearn_acc_cls}')
 
         retain_train_acc_unlearning[epoch] = train_retain_acc_cls
         unlearn_train_acc_unlearning[epoch] = train_unlearn_acc_cls
@@ -537,8 +527,6 @@ for multiclass_idx in range(len(num_multiclass_list)):
                                                                                                                     unlearn_classes=unlearn_classes
                                                                                                                     )
         print(f'Classwise Accuracy on Test Data after Unlearning(Unlearn Classes - {unlearn_classes}) :\n {unlearn_test_classwise_accuracy}\n')
-        print(f'Accuracy of Unlearned Model on Retain Data in Test Dataset(Unlearn Classes - {unlearn_classes}) = {test_retain_acc_cls}')
-        print(f'Accuracy of Unlearned Model on Unlearn Data in Test Dataset(Unlearn Classes - {unlearn_classes}) = {test_unlearn_acc_cls}')
 
         retain_test_acc_unlearning[epoch] = test_retain_acc_cls
         unlearn_test_acc_unlearning[epoch] = test_unlearn_acc_cls
@@ -605,8 +593,8 @@ for multiclass_idx in range(len(num_multiclass_list)):
         unlearn_test_acc_retrained[epoch] = retrain_test_unlearn_acc_cls
         all_classwise_acc['Test_Retrain_'+unlearn_classes_name] = retrain_test_classwise_accuracy
         
-        all_accuracy_savepath = ''.join([obj_model.result_savepath, unlearn_type, '_results_fixed_seed_inner_loop/'])
-        obj_model.create_folder(all_accuracy_savepath)
+        all_accuracy_savepath = ''.join([obj_model.result_savepath, unlearn_type, '_results/'])
+        create_folder(all_accuracy_savepath)
         classwise_accuracy_savepath = ''.join([all_accuracy_savepath,
                                     obj_model.model_name, '_',
                                     obj_model.data_name, '_',
