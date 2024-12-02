@@ -58,9 +58,13 @@ All required dependencies can be installed using the provided `conda_environment
    ```bash
    conda env create -f conda_environment.yml
    
-2. Activate the environments:
+2. Activate the environment:
    ```bash
-   conda activate condapy312`
+   conda activate conda_base
+
+3. Install required packages in `conda_base` environment:
+   ```bash
+   pip install -r requirements.txt
    
 After activating the environment, open and run the desired notebook. Get pre-trained ResNet18 network in [here](https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link).
 
