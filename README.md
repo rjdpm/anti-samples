@@ -105,7 +105,7 @@ To cite this paper use:
 @misc{rajdeep2024ANAGTEMU,
       title={A Novel Anti-Sample Generation Technique for Effective Machine Unlearning}, 
       author={Rajdeep Mondal and Soumitra Samanta},
-      year={2024},
+      year={2024}
 }
 
 
