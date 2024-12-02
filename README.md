@@ -101,10 +101,10 @@ A toy example for proof-of-concept experiments is provided in the following note
 `unlearn_comparison_toy_example.ipynb`  
 This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
 
-## License  
+## 📜 License  
 This project is licensed under the Creative Commons Zero v1.0 Universal License. See the [LICENSE](https://github.com/rjdpm/anti-samples/blob/main/LICENSE.md) file for details.
 
-## Citation  
+## 📝 Citation  
 To cite this paper use:
 ```latex
 @misc{rajdeep2024ANAGTEMU,
