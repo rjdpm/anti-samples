@@ -6,13 +6,14 @@
 #%--------------------------------------------------------------------------------------------
 ##############################################################################################
 
-
 import os
 import numpy as np
 import copy
 from collections import OrderedDict
 import pandas as pd
 from tqdm import tqdm
+import warnings
+warnings.filterwarnings("ignore")
 
 import torch
 import torch.optim as optim
@@ -22,12 +23,11 @@ from utils_unlearn import *
 from UNMUNGE import *
 from load_datasets import *
 from config import *
-from dataloader import *
 
 ##################################################### Inputs #################################
 #---------------------------------------------------------------------------------------------
-dataset_name = 'cifar10'#'cifar10', 'svhn', 'mnist' , 'fashionMNIST', 'cifar100'#
-model_name = 'MobileNet_v2'#'ResNet9', 'LeNet32', 'AllCNN', 'ResNet18', 'MobileNet_v2'#
+dataset_name = 'svhn'#'cifar10', 'svhn', 'mnist' , 'fashionMNIST'#
+model_name = 'ResNet9'#'ResNet9', 'AllCNN', 'ResNet18', 'MobileNet_v2'#
 retain_data_percent = 30#100#
 unlearn_type = 'Single_Class_Unlearn'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -60,14 +60,14 @@ else:
 learning_rate = config['learning_rate']
 unlearn_scale_lr = config['unlearn_scale_lr']
 batch_size = config['batch_size']
-num_train_epochs = config['num_train_epochs']
-num_unlearn_epochs = config['num_unlearn_epochs']
+num_train_epochs = 2#30
+num_unlearn_epochs = 2#5
 local_variance = config['local_variance']
 size_multiplier = config['size_multiplier']
 p = config['p']
 tail_randomized=config['tail_randomized']
 solver_type = config['solver_type']
-no_generated_data = config['no_generated_data']
+no_generated_data = 500 if retain_data_percent==30 else 1500
 convex_combination = True
 eps = 0.01
 
@@ -94,11 +94,9 @@ print('\n\n')
 ####################################### Loading Datasets ######################################
 
 # For GPU's
-datapath = '/home/rajdeep/workspace/Codes/Datasets/Torchvision_Data/'
+datapath = '/home/rkmvu/Workspace/Codes/Datasets/Torchvision_Data/'
 if dataset_name == 'svhn':
     datapath = ''.join([datapath, 'SVHN_Data/'])
-if dataset_name == 'cifar100':
-    datapath = ''.join([datapath, 'CIFAR100/'])
 
 #----------------------------------------------------------------------------------------------
 
@@ -222,8 +220,7 @@ for cls in tqdm(range(num_classes)):
     print('Testing main model on train data:\n')
     confusion_matrix, train_acc, train_classwise_accuracy, train_retain_acc, train_unlearn_acc = accuracy(obj_model.network,
                                                                                                           train_loader,
-                                                                                                          unlearn_cls=unlearn_cls,
-                                                                                                          num_classes = num_classes
+                                                                                                          unlearn_cls=unlearn_cls
                                                                                                           )
     print(f'Test accuracy on Train data = {train_acc}')  
     print(f'Accuracy on Train retain Data = {train_retain_acc}')
@@ -237,8 +234,7 @@ for cls in tqdm(range(num_classes)):
     print('Testing main model on train data:\n')
     confusion_matrix, test_acc, test_classwise_accuracy, test_retain_acc, test_unlearn_acc = accuracy(obj_model.network,
                                                                                                       test_loader,
-                                                                                                      unlearn_cls=unlearn_cls,
-                                                                                                      num_classes = num_classes
+                                                                                                      unlearn_cls=unlearn_cls
                                                                                                       )
     print(f'Test accuracy on Test data = {test_acc}')
     print(f'Accuracy on Test retain Data = {test_retain_acc}')
@@ -424,8 +420,7 @@ for cls in tqdm(range(num_classes)):
     print('----------------------')
     confusion_matrix, acc, unlearn_train_classwise_accuracy, train_retain_acc_cls, train_unlearn_acc_cls = accuracy(unlearn_model.network,
                                                                                                                     train_loader,
-                                                                                                                    unlearn_cls=unlearn_cls,
-                                                                                                                    num_classes = num_classes
+                                                                                                                    unlearn_cls=unlearn_cls
                                                                                                                     )
     print(f'Classwise Accuracy on Train Data after Unlearning(Unlearn Class - {unlearn_cls}):\n {unlearn_train_classwise_accuracy}\n')
     print(f'Accuracy of Unlearned Model on Retain Data in Train Dataset(Unlearn Class - {unlearn_cls}) = {train_retain_acc_cls}')
@@ -439,8 +434,7 @@ for cls in tqdm(range(num_classes)):
     print('---------------------')
     confusion_matrix, acc, unlearn_test_classwise_accuracy, test_retain_acc_cls, test_unlearn_acc_cls = accuracy(unlearn_model.network,
                                                                                                                  test_loader,
-                                                                                                                 unlearn_cls=unlearn_cls,
-                                                                                                                 num_classes = num_classes
+                                                                                                                 unlearn_cls=unlearn_cls
                                                                                                                  )
     print(f'Classwise Accuracy on Test Data after Unlearning(Unlearn Class - {unlearn_cls}) :\n {unlearn_test_classwise_accuracy}\n')
     print(f'Accuracy of Unlearned Model on Retain Data in Test Dataset(Unlearn Class - {unlearn_cls}) = {test_retain_acc_cls}')
@@ -480,8 +474,7 @@ for cls in tqdm(range(num_classes)):
     print('-------------------------------------------------')
     confusion_matrix, acc, retrain_train_classwise_accuracy, retrain_train_retain_acc_cls, retrain_train_unlearn_acc_cls = accuracy(retrain_model.network.to(device),
                                                                                                                                     train_loader,
-                                                                                                                                    unlearn_cls=unlearn_cls, 
-                                                                                                                                    num_classes = num_classes
+                                                                                                                                    unlearn_cls=unlearn_cls
                                                                                                                                     )
     print(f'Classwise Accuracy on Train Data after Retraining(Unlearn Class - {unlearn_cls}) :\n {retrain_train_classwise_accuracy}')
     print(f'Accuracy of Retrained Model on Retain Data in Train Dataset = {retrain_train_retain_acc_cls}')
@@ -497,8 +490,7 @@ for cls in tqdm(range(num_classes)):
     print('------------------------------------------------')
     confusion_matrix, acc, retrain_test_classwise_accuracy, retrain_test_retain_acc_cls, retrain_test_unlearn_acc_cls = accuracy(retrain_model.network.to(device),
                                                                                                                                  test_loader,
-                                                                                                                                 unlearn_cls=unlearn_cls, 
-                                                                                                                                 num_classes = num_classes
+                                                                                                                                 unlearn_cls=unlearn_cls
                                                                                                                                  )
     print(f'Classwise Accuracy on Test Data after Retraining(Unlearn Class - {unlearn_cls}):\n{retrain_test_classwise_accuracy}')
     print(f'Accuracy of Retrained Model on Retain Data in Test Dataset = {retrain_test_retain_acc_cls}')
@@ -517,7 +509,7 @@ for cls in tqdm(range(num_classes)):
                                      '_results',
                                      '/'
                                      ])
-    obj_model.create_folder(all_accuracy_savepath)
+    create_folder(all_accuracy_savepath)
     classwise_accuracy_savepath = ''.join([all_accuracy_savepath,
                                  obj_model.model_name, '_',
                                  obj_model.data_name, '_',
