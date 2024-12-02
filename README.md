@@ -48,7 +48,7 @@ All required dependencies can be installed using the provided [conda_environment
    
 2. Activate the environment:
    ```bash
-   conda activate conda_base
+   conda activate conda_env
    
 After activating the environment, open and run the desired notebook. Get pre-trained ResNet18 network in [here](https://drive.google.com/file/d/1VFkBE7C8aAKxFdYd1O-HQzSSMBkwgD9B/view?usp=drive_link).
 
