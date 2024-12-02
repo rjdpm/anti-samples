@@ -6,8 +6,8 @@
 - [Setup Instructions](#%EF%B8%8F-setup-instructions)
 - [Usages](#-usages)
 - [Proof of Concept](#-proof-of-concept-toy-example)
-- [License](#license)
-- [Citation](#citation)
+- [License](#-license)
+- [Citation](#-citation)
 
 ---
 
