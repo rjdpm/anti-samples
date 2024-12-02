@@ -99,5 +99,13 @@ A toy example for proof-of-concept experiments is provided in the following note
 `unlearn_comparison_toy_example.ipynb`  
 This example gives the overview of the retain accuracy problem for noise generation based unlearning techniques.
 
+## Citation  
+To cite this paper use:
+```latex
+@misc{rajdeep2024ANAGTEMU,
+      title={A Novel Anti-Sample Generation Technique for Effective Machine Unlearning}, 
+      author={Rajdeep Mondal and Soumitra Samanta},
+      year={2024},
+}
 
 
