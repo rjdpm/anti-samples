@@ -14,8 +14,6 @@ from torchvision.models import mobilenet_v3_large
 from torchvision.models import resnet18
 
 
-
-
 __all__ = [
     'ResNet9_',
     'AllCNN_',
@@ -124,17 +122,6 @@ class AllCNN_(nn.Module):
         out = self.classifier(out)
         
         return out#, actv1, actv2, actv3, actv4, actv5, actv6, actv7, actv8 
-
-
-    def forward(self, x):
-        for idx, layer in enumerate(self.layers):
-            x = layer(x)
-            if idx == 0:
-                activation1 = x
-            if idx == 3:
-                activation2 = x
-
-        return x#, activation1, activation2
 
 
 class ResidualBlock_(nn.Module):
