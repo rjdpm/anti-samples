@@ -19,8 +19,8 @@ We present two results:
 - **Unlearning-100**: 100% of the retain data is used in the train-to-unlearn step.  
 
 Empirical results for these are demonstrated on a ResNet18 model using the CIFAR-10 dataset. The experiments can be found in the following notebooks:  
-- Unlearning-30: [test_example_single_class_unleaning_30.ipynb](https://github.com/rjdpm/anti-samples/blob/main/test_example_single_class_unleaning_30.ipynb)  
-- Unlearning-100: [test_example_single_class_unleaning_100.ipynb](https://github.com/rjdpm/anti-samples/blob/main/test_example_single_class_unleaning_100.ipynb)
+- **Unlearning-30:** [test_example_single_class_unleaning_30.ipynb](https://github.com/rjdpm/anti-samples/blob/main/test_example_single_class_unleaning_30.ipynb)  
+- **Unlearning-100:** [test_example_single_class_unleaning_100.ipynb](https://github.com/rjdpm/anti-samples/blob/main/test_example_single_class_unleaning_100.ipynb)
 
 ---
 
