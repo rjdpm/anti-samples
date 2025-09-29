@@ -95,7 +95,7 @@ This project is licensed under the Creative Commons Zero v1.0 Universal License.
 ## 📝 Citation  
 To cite this paper use:
 ```latex
-@misc{mondal2024NAG,
+@misc{mondal2025NAG,
       title={A Novel Anti-Sample Generation Technique for Effective Machine Unlearning}, 
       author={Rajdeep Mondal and Soumitra Samanta},
       year={2025}
