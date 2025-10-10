@@ -35,14 +35,6 @@ def load_cifar10(root = './'):
     with tarfile.open(data_dir+'/cifar10.tgz', 'r:gz') as tar:
         tar.extractall(path=root)
     
-    
-    # Look into the data directory
-    # data_dir = os.path.join(root, 'cifar10')
-    #print(os.listdir(data_dir))
-    #classes = os.listdir(data_dir + "/train")
-    
-    #train_ds = torchvision.datasets.CIFAR10(root='./', train=True, download=True, transform=transform)
-    #valid_ds = torchvision.datasets.CIFAR10(root='./', train=False, download=True, transform=transform)
     train_ds = ImageFolder(data_dir+'/train', transform)
     valid_ds = ImageFolder(data_dir+'/test', transform)
     return train_ds, valid_ds
