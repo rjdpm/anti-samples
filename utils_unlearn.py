@@ -22,7 +22,6 @@ from torch.utils.data import DataLoader, Subset
 import torch.optim as optim
 from torchvision.models import resnet18
 from torchvision.models import mobilenet_v2
-from torch.autograd import Function
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
@@ -32,9 +31,7 @@ __all__ = [
     'create_folder',
     'utils_',
     'accuracy',
-    'unlearn',
     'accuracy_multiclass_unlearn',
-    'subset_accuracy',
     'round_up',
     'parameter_value_list_from_name',
     'map_image_0t01',
@@ -130,14 +127,7 @@ class utils_:
         #     print('Data is not mnist, svhn or cifar10.\n')
         
         #=======================================================================
-        if model_name == 'LeNet32':    
-            self.network = LeNet32_(n_classes=self.num_classes,
-                                    num_input_channels=self.num_input_channels,
-                                    padding=self.padding
-                                    )
-            self.network = self.network.to(self.device)   
-        #=======================================================================
-        elif model_name == 'ResNet9':
+        if model_name == 'ResNet9':
             self.network = ResNet9_(n_classes=self.num_classes,
                                     num_input_channels=self.num_input_channels,
                                     padding=self.padding,
@@ -510,317 +500,6 @@ class utils_:
         return model, epoch_unlearning_losses, total_time
     #-------------------------------------------------------------------------------------------------------------------------
     
-    
-    def unlearn_min_munge(self, model, optimizer, dataloader, num_epochs=10):
-        
-        # to record avg. losses  
-        self.unlearn_retain_loss = np.zeros(num_epochs)
-        self.unlearn_retain_acc = np.zeros(num_epochs)
-        
-        self.unlearn_unlearn_loss = np.zeros(num_epochs)
-        self.unlearn_unlearn_acc = np.zeros(num_epochs)
-        
-        self.unlearn_test_loss = np.zeros(num_epochs)
-        self.unlearn_test_acc = np.zeros(num_epochs)
-                
-        model = model.to(self.device)
-        # unlearn_optimizer = optim.Adam(model.parameters(), lr=self.learning_rate)
-        self.test_loader = DataLoader(self.test_data, self.batch_size, shuffle=True)
-        print(f'Number of total unlearned data = {len(dataloader.dataset)}\n')
-        
-        total_time = 0
-        epoch_unlearning_losses = [None]*num_epochs 
-        for epoch in tqdm(range(num_epochs)):
-            
-            print('\nUnlearning epoch {}/({})\n' .format(epoch+1, num_epochs))
-            epoch_unlearning_loss = 0
-            
-            init_time = time.time()
-            for i, (batch, label, loss_cri) in enumerate(dataloader):
-                loss_retain  = torch.tensor(0., requires_grad=True, device=self.device)
-                loss_unlearn = torch.tensor(0., requires_grad=True, device=self.device)
-
-                batch, label = batch.to(self.device), label.to(self.device)
-                optimizer.zero_grad()
-                loss_cri = np.array(loss_cri)
-
-                retain_filter_idx = (loss_cri == 'retain')
-                # retain_filter_idx = torch.tensor([tag == 'retain' for tag in loss_cri], device=self.device)
-                unlearn_filter_idx = ~retain_filter_idx
-                if retain_filter_idx.any():
-                    inputs_retain = batch[retain_filter_idx]
-                    inputs_retain = inputs_retain.type(torch.float)
-                    labels_retain = label[retain_filter_idx]
-                    outputs_retain = model(inputs_retain)
-                    outputs_retain_prob = F.softmax(outputs_retain, dim=1)
-                    loss_retain = F.cross_entropy(outputs_retain, labels_retain, reduction='mean')
-                    # labels_retain = F.one_hot(labels_retain, num_classes=outputs_retain_prob.shape[1]).float()
-                    # loss_retain = F.kl_div(input = torch.log(outputs_retain_prob + 1e-6), target = labels_retain, reduction='batchmean')
-                    
-                if unlearn_filter_idx.any():
-                    # print('MAX PART')
-                    inputs_unlearn = batch[unlearn_filter_idx]
-                    inputs_unlearn = inputs_unlearn.type(torch.float)
-                    labels_unlearn = label[unlearn_filter_idx]
-                    outputs_unlearn = model(inputs_unlearn)
-                    outputs_unlearn_prob = F.softmax(outputs_unlearn, dim=1)
-                    
-                    # labels_unlearn = F.one_hot(labels_unlearn, num_classes=outputs_unlearn_prob.shape[1]).float()
-                    # loss_unlearn = F.kl_div(input = torch.log(outputs_unlearn_prob + 1e-6), target = labels_unlearn, reduction='batchmean')
-                    loss_unlearn = F.cross_entropy(outputs_unlearn, labels_unlearn, reduction='mean')
-                
-                loss = (loss_retain*1e-2 + loss_unlearn)
-                loss.backward()
-                
-                # torch.nn.utils.clip_grad_norm_(model.parameters(), clip_grad_norm)
-                optimizer.step()
-                epoch_unlearning_loss += loss.item()
-                
-            epoch_unlearning_loss /= len(dataloader.dataset)
-            epoch_unlearning_losses[epoch] = epoch_unlearning_loss
-                
-            end_time = time.time()
-            req_time = end_time-init_time
-            total_time = total_time + req_time      
-            model.eval()
-                    
-            print('Average unlearning loss = {}\n'.format(epoch_unlearning_loss))
-                        
-            # test on retain data
-            print('Test on retain data epoch {}/({})\n' .format(epoch+1, num_epochs))
-            self.test_retain_loader = self.data_subset(self.retain_loader_test, 0.1)
-            epoch_test_retain_loss, retain_confusion_matrix, epoch_test_retain_acc, self.retain_classwise_accuracy, actual_labels, _ = self.test(model, self.test_retain_loader)
-            self.unlearn_retain_loss[epoch] = epoch_test_retain_loss
-            self.unlearn_retain_acc[epoch] = epoch_test_retain_acc
-            print('Avg. test loss on retain data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_retain_loss), float(epoch_test_retain_acc)))
-            
-            # test on unlearn data
-            print('Test on unlearn data epoch {}/({})\n' .format(epoch+1, num_epochs))
-            self.test_unlearn_loader = self.data_subset(self.unlearn_dataloader, 1)
-            epoch_test_unlearn_loss, _, epoch_test_unlearn_acc, self.unlearn_classwise_accuracy, _, _ = self.test(model, self.test_unlearn_loader)
-            self.unlearn_unlearn_loss[epoch] = epoch_test_unlearn_loss
-            self.unlearn_unlearn_acc[epoch] = epoch_test_unlearn_acc
-            print('Avg. test loss on unlearn data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_unlearn_loss), float(epoch_test_unlearn_acc)))
-            
-            # test on test data
-            print('Test on test data epoch {}/({})\n' .format(epoch+1, num_epochs))
-            self.test_test_loader = self.data_subset(self.test_loader, 0.1)
-            epoch_test_test_loss, test_unlearn_confusion_matrix, epoch_test_test_acc, self.test_unlearn_classwise_accuracy, _, _ = self.test(model, self.test_test_loader)
-            self.unlearn_test_loss[epoch] = epoch_test_test_loss
-            self.unlearn_test_acc[epoch] = epoch_test_test_acc
-            print('Avg. test loss on test data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_test_loss), float(epoch_test_test_acc)))
-            
-            # save the best trained network
-            # if((epoch==0) or (self.test_unlearn_loss_best_network<epoch_test_test_loss)):             
-                
-            self.unlearn_model = model
-            self.unlearn_optimizer = optimizer
-            self.epoch_best_network = epoch
-            self.retain_loss_best_network = epoch_test_retain_loss
-            self.test_unlearn_loss_best_network = epoch_test_test_loss
-            
-            self.save_unlearn_model(epoch = self.epoch_best_network, model_save_path=self.best_unlearn_model_save_path)
-            self.save_unlearn_loss_csv(epoch, save_csv_filename = ''.join([self.result_savepath_unlearned,
-                                                                           self.model_name, '_',
-                                                                           self.data_name, '_'
-                                                                           'Unlearning_Loss']))
-            # self.count_epoch = epoch + 1
-        
-        # self.save_confusion_matrix(confusion_matrix=retain_confusion_matrix,
-        #                            name = ''.join([self.result_savepath_unlearned,
-        #                                            self.model_name, '_',
-        #                                            self.data_name,
-        #                                            '_unlrncls_', str(self.unlearn_cls), '_',
-        #                                             'retain_confusion_matrix']
-        #                                           ),
-        #                             title_info = f'(Unlearn Class - {self.unlearn_cls})',
-        #                            )
-        # self.save_confusion_matrix(confusion_matrix=unlearn_confusion_matrix,
-        #                            name = ''.join([self.result_savepath_unlearned,
-        #                                            self.model_name, '_', 
-        #                                            self.data_name, 
-        #                                            '_unlrncls_', str(self.unlearn_cls), '_',
-        #                                            'unlearn_confusion_matrix']
-        # #                                           ))
-        # self.save_confusion_matrix(confusion_matrix=test_unlearn_confusion_matrix,
-        #                            name = ''.join([self.result_savepath_unlearned,
-        #                                            self.model_name, '_',
-        #                                            self.data_name,
-        #                                            '_unlrncls_', str(self.unlearn_cls), '_',
-        #                                            'test_unlearn_confusion_matrix']
-        #                                           ),
-        #                             title_info = f'(Unlearn Class - {self.unlearn_cls})'
-        #                            )
-        
-            
-        return model, epoch_unlearning_losses, total_time
-    #-------------------------------------------------------------------------------------------------------------------------
-    
-    
-    def unlearn_max_min(self, model, optimizer, dataloader, num_epochs=10, save_confusion_mat=True):
-            
-        # to record avg. losses  
-        self.unlearn_retain_loss = np.zeros(num_epochs)
-        self.unlearn_retain_acc = np.zeros(num_epochs)
-        
-        self.unlearn_unlearn_loss = np.zeros(num_epochs)
-        self.unlearn_unlearn_acc = np.zeros(num_epochs)
-        
-        self.unlearn_test_loss = np.zeros(num_epochs)
-        self.unlearn_test_acc = np.zeros(num_epochs)
-        # plot_in_0to1_range(test_batch[0].permute(1, 2, 0), self.train_data.classes[test_labels[0]], save_filepath='./to_see_img')
-                
-        model = model.to(self.device)
-        # unlearn_optimizer = optim.Adam(model.parameters(), lr=self.learning_rate)
-        self.test_loader = DataLoader(self.test_data, self.batch_size, shuffle=True)
-        print(f'Number of total unlearned data = {len(dataloader.dataset)}\n')
-        
-        total_time = 0
-        
-        epoch_unlearning_losses = [None]*num_epochs 
-        for epoch in tqdm(range(num_epochs)):
-            
-            print('\nUnlearning epoch {}/({})\n' .format(epoch+1, num_epochs))
-            epoch_unlearning_loss = 0
-            
-            init_time = time.time()
-            for i, (batch, label, loss_cri) in enumerate(dataloader):
-                loss_min_unlearn  = torch.tensor(0., requires_grad=True, device=self.device)
-                loss_min_retain = torch.tensor(0., requires_grad=True, device=self.device)
-                loss_max_unlearn = torch.tensor(0., requires_grad=True, device=self.device)
-
-                batch, label = batch.to(self.device), label.to(self.device)
-                optimizer.zero_grad()
-                loss_cri = np.array(loss_cri)
-
-                max_filter_idx = (loss_cri == 'max')
-                min_filter_idx = ~max_filter_idx
-
-                if min_filter_idx.any():
-                    inputs_min = batch[min_filter_idx]
-                    inputs_min = inputs_min.type(torch.float)
-                    labels_min = label[min_filter_idx]
-                    outputs_min = model(inputs_min)
-                    outputs_min_prob = F.softmax(outputs_min, dim=1)
-                    # loss_min = F.cross_entropy(outputs_min, labels_min reduction='mean')
-                    labels_min = F.one_hot(labels_min, num_classes=outputs_min_prob.shape[1]).float()
-                    loss_min_retain = F.kl_div(input = torch.log(outputs_min_prob + 1e-6), target = labels_min, reduction='batchmean')
-                    # print('loss_min_retain - ', loss_min_retain)
-                    
-                if max_filter_idx.any():
-                    # print('MAX PART')
-                    inputs_max = batch[max_filter_idx]
-                    inputs_max = inputs_max.type(torch.float)
-                    labels_max = label[max_filter_idx]
-                    outputs_max = model(inputs_max)
-                    outputs_max = F.softmax(outputs_max, dim=1)
-                    num_classes = outputs_max.size(1)
-                    
-                    # Minimize the KL Divergence between the output distribution of the data classes and the uniform distribution
-                    wrong_targets = torch.ones_like(outputs_max) / (num_classes - 1)
-                    wrong_targets = wrong_targets.scatter(1, labels_max.unsqueeze(1), 0.0) ## Returns the output distribution of the data classes with unlearn class prob = 0 and all other classes prob = 1/(num_classes - 1)
-                    loss_min_unlearn = F.kl_div(input = torch.log(outputs_max + 1e-6), target = wrong_targets, reduction='batchmean')
-                    # print('loss_min_unlearn - ', loss_min_unlearn)
-                    
-                    ## Maximize the KL Divergence between the output distribution of the data classes and the unlearn classes distribution
-                    labels_max = F.one_hot(labels_max, num_classes=num_classes).float()
-                    loss_max_unlearn = -F.kl_div(input = torch.log(outputs_max + 1e-6), target = labels_max, reduction='batchmean')
-                    # print('loss_max_unlearn - ', loss_max_unlearn)
-                    
-                loss = (loss_min_retain + loss_max_unlearn+loss_min_unlearn)#(loss_min_retain+loss_max_unlearn+loss_min_unlearn)#
-                loss.backward()
-                
-                # torch.nn.utils.clip_grad_norm_(model.parameters(), clip_grad_norm)
-                optimizer.step()
-                epoch_unlearning_loss += loss.item()
-                
-            epoch_unlearning_loss /= len(dataloader.dataset)
-            epoch_unlearning_losses[epoch] = epoch_unlearning_loss
-                
-            end_time = time.time()
-            req_time = end_time-init_time
-            total_time = total_time + req_time      
-            model.eval()
-            
-            # epoch_unlearning_loss = self.train_1epoch(model, unlearn_optimizer, self.unlearn_loader_all)
-            print('Average unlearning loss = {}\n'.format(epoch_unlearning_loss))
-                        
-            # test on retain data
-            print('Test on retain data epoch {}/({})\n' .format(epoch+1, num_epochs))
-            self.test_retain_loader = self.data_subset(self.retain_loader_test, 0.1)
-            epoch_test_retain_loss, retain_confusion_matrix, epoch_test_retain_acc, self.retain_classwise_accuracy, actual_labels, _ = self.test(model, self.test_retain_loader)
-            self.unlearn_retain_loss[epoch] = epoch_test_retain_loss
-            self.unlearn_retain_acc[epoch] = epoch_test_retain_acc
-            print('Avg. test loss on retain data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_retain_loss), float(epoch_test_retain_acc)))
-            
-            # test on unlearn data
-            print('Test on unlearn data epoch {}/({})\n' .format(epoch+1, num_epochs))
-            self.test_unlearn_loader = self.data_subset(self.unlearn_dataloader, 1)
-            epoch_test_unlearn_loss, _, epoch_test_unlearn_acc, self.unlearn_classwise_accuracy, _, _ = self.test(model, self.test_unlearn_loader)
-            self.unlearn_unlearn_loss[epoch] = epoch_test_unlearn_loss
-            self.unlearn_unlearn_acc[epoch] = epoch_test_unlearn_acc
-            print('Avg. test loss on unlearn data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_unlearn_loss), float(epoch_test_unlearn_acc)))
-            
-            # test on test data
-            print('Test on test data epoch {}/({})\n' .format(epoch+1, num_epochs))
-            self.test_test_loader = self.data_subset(self.test_loader, 0.1)
-            epoch_test_test_loss, test_unlearn_confusion_matrix, epoch_test_test_acc, self.test_unlearn_classwise_accuracy, _, _ = self.test(model, self.test_test_loader)
-            self.unlearn_test_loss[epoch] = epoch_test_test_loss
-            self.unlearn_test_acc[epoch] = epoch_test_test_acc
-            print('Avg. test loss on test data: {:.6f} and acc: {:.6f}\n' .format(float(epoch_test_test_loss), float(epoch_test_test_acc)))
-            
-            # save the best trained network
-            # if((epoch==0) or (self.test_unlearn_loss_best_network<epoch_test_test_loss)):             
-                
-            self.unlearn_model = model
-            self.unlearn_optimizer = optimizer
-            self.epoch_best_network = epoch
-            self.retain_loss_best_network = epoch_test_retain_loss
-            self.test_unlearn_loss_best_network = epoch_test_test_loss
-            
-            self.save_unlearn_model(epoch = self.epoch_best_network, model_save_path=self.best_unlearn_model_save_path)
-            self.save_unlearn_loss_csv(epoch, save_csv_filename = ''.join([self.result_savepath_unlearned,
-                                                                        self.model_name, '_',
-                                                                        self.data_name, '_'
-                                                                        'Unlearning_Loss']))
-            # self.count_epoch = epoch + 1
-        
-        if save_confusion_mat:
-            tick_labels =  sorted(np.unique(actual_labels))   
-            tick_labels =  [int(x) for x in tick_labels]    
-            self.save_confusion_matrix(confusion_matrix=retain_confusion_matrix,
-                                    name = ''.join([self.result_savepath_unlearned,
-                                                    self.model_name, '_',
-                                                    self.data_name,
-                                                    '_unlrncls_', str(self.unlearn_cls), '_',
-                                                        'retain_confusion_matrix'],
-                                                    ),
-                                        title_info = f'(Unlearn Class - {self.unlearn_cls})',
-                                        xticklabels=tick_labels,
-                                        yticklabels=tick_labels
-                                    )
-            # self.save_confusion_matrix(confusion_matrix=unlearn_confusion_matrix,
-            #                            name = ''.join([self.result_savepath_unlearned,
-            #                                            self.model_name, '_', 
-            #                                            self.data_name, 
-            #                                            '_unlrncls_', str(self.unlearn_cls), '_',
-            #                                            'unlearn_confusion_matrix']
-            #                                           ))
-            self.save_confusion_matrix(confusion_matrix=test_unlearn_confusion_matrix,
-                                    name = ''.join([self.result_savepath_unlearned,
-                                                    self.model_name, '_',
-                                                    self.data_name,
-                                                    '_unlrncls_', str(self.unlearn_cls), '_',
-                                                    'test_unlearn_confusion_matrix'],
-                                                    ),
-                                        title_info = f'(Unlearn Class - {self.unlearn_cls})'
-                                    )
-        
-            
-        return model, epoch_unlearning_losses, total_time
-    #-------------------------------------------------------------------------------------------------------------------------
-    
-    
         
     def save_unlearn_model(self, epoch, model_save_path = './'):
         
@@ -1101,40 +780,6 @@ def classwise_accuracy_func(y_pred, y_true, num_classes):
     
     return classwise_acc          
         
-# def accuracy(model,
-#              dataloader,
-#              unlearn_cls,
-#              aprox_ndigits = 2,
-#              num_classes = 10,
-#              device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#              ):
-
-#     actual_labels = []#*len(dataloader.dataset)
-#     predicted_labels = []#*len(dataloader.dataset)
-#     model = model.to(device)
-#     model.eval()
-#     with torch.no_grad():
-#         for batch, labels in dataloader:
-#             data = batch.to(device)
-#             predicted = model(data.type(torch.float))
-#             predicted = predicted.cpu().detach().numpy()
-#             predicted = np.argmax(predicted, axis=1)
-#             predicted_labels.extend(predicted)
-#             actual_labels.extend(labels)
-#     confusion_matrix = metrics.confusion_matrix(actual_labels, predicted_labels)#Computing the confusion matrix
-#     acc = round((sum(confusion_matrix.diagonal())/np.sum(confusion_matrix))*100, aprox_ndigits)
-#     retain_acc = (sum(confusion_matrix.diagonal()) - confusion_matrix[unlearn_cls, unlearn_cls])/(np.sum(confusion_matrix) - np.sum(confusion_matrix[unlearn_cls]))
-#     retain_acc = round(retain_acc*100, aprox_ndigits)
-#     unlearn_acc = confusion_matrix[unlearn_cls, unlearn_cls]/np.sum(confusion_matrix[unlearn_cls])
-#     unlearn_acc = round(unlearn_acc*100, aprox_ndigits)
-#     # classwise_accuracy = [round((confusion_matrix[i,i]/np.sum(confusion_matrix, axis=1)[i])*100, aprox_ndigits) for i in range(confusion_matrix.shape[0])]
-#     classwise_accuracy = classwise_accuracy_func(y_pred = predicted_labels, y_true=actual_labels, num_classes = confusion_matrix.shape[0])
-#     # cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = list(range(num_classes)))
-#     # cm_display.plot()
-#     # plt.close()
-    
-#     return confusion_matrix, acc, classwise_accuracy, retain_acc, unlearn_acc#actual_labels, predicted_labels
-
 
 def accuracy(model,
              dataloader,
@@ -1211,34 +856,6 @@ def accuracy_multiclass_unlearn(model, dataloader,
     
     return confusion_matrix, acc, classwise_accuracy, retain_acc, unlearn_acc#actual_labels, predicted_labels
 
-
-def subset_accuracy(model,
-                    dataloader,
-                    aprox_ndigits = 2,
-                    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-                    ):#, num_classes = 10):
-
-    actual_labels = []#*len(dataloader.dataset)
-    predicted_labels = []#*len(dataloader.dataset)
-    model = model.to(device)
-    model.eval()
-    with torch.no_grad():
-        for batch, labels in dataloader:
-            data = batch.to(device)
-            predicted = model(data.type(torch.float))
-            predicted = predicted.cpu().detach().numpy()
-            predicted = np.argmax(predicted, axis=1)
-            predicted_labels.extend(predicted)
-            actual_labels.extend(labels)
-    confusion_matrix = metrics.confusion_matrix(actual_labels, predicted_labels)#Computing the confusion matrix
-    acc = round((np.trace(confusion_matrix)/np.sum(confusion_matrix))*100, aprox_ndigits)
-    classwise_accuracy = [round((confusion_matrix[i,i]/np.sum(confusion_matrix[i]))*100, aprox_ndigits) for i in range(confusion_matrix.shape[0])]
-    # cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = list(range(num_classes)))
-    # cm_display.plot()
-    # plt.show(block = False)
-        
-    return confusion_matrix, acc, classwise_accuracy, actual_labels, predicted_labels
-
     
 def map_image_0t01(data):
     
@@ -1299,35 +916,7 @@ def plot_in_0to1_range(data,
                            save_filepath=save_filepath,
                            show_img = show_img
                            )
-    
-def unlearn(model,
-            train_loader,
-            no_of_epochs=10,
-            lr=1e-3,
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            ):
-    
-    model.train()# switch to train mode
-    optimizer = optim.Adam(params=model.network.parameters(), lr = lr)
-    epoch_train_losses = [None]*no_of_epochs
-    model = model.to(device)
-    for epoch in tqdm(range(no_of_epochs)):
-        epoch_train_loss = 0
-        for batch, label in train_loader:
-            batch, label = batch.to(device), label.to(device)
-            optimizer.zero_grad()
-            y_pred = model(batch.type(torch.float))
-            loss = F.cross_entropy(y_pred, label)
-            loss.backward()
-            optimizer.step()
-            # print('check1')
-            epoch_train_loss += loss.item()
-        epoch_train_loss /= len(train_loader.dataset)
-        epoch_train_losses[epoch] = epoch_train_loss
-        
-        model.eval()        
-        
-    return model, epoch_train_losses
+
 
 def round_up(num = 1.987, digit = 2):
     
