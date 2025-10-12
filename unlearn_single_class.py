@@ -59,8 +59,6 @@ for dataset_name in dataset_name_list:
             elif dataset_name == 'svhn' or dataset_name == 'cifar10' or dataset_name == 'cifar100':
                 num_input_channels = 3
                 num_classes = 10
-                if dataset_name == 'cifar100':
-                    num_classes = 20#100
                 padding = 0
             elif dataset_name == 'casia-webface':
                 num_input_channels = 3
